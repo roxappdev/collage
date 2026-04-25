@@ -8,29 +8,43 @@
 </head>
 <body>
     <div id="app">
-        <div id="toolbar">
-            <label id="upload-btn" class="btn">
-                <input type="file" id="file-input" accept="image/*" multiple hidden>
-                + Add Photos
-            </label>
-            <div id="gap-control" hidden>
-                <label for="gap-slider">Spacing</label>
-                <input type="range" id="gap-slider" min="0" max="20" value="4">
+        <div id="drop-zone">
+            <input type="file" id="file-input" accept="image/*" multiple hidden>
+            <div id="drop-content">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#86868b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                    <polyline points="21 15 16 10 5 21"/>
+                </svg>
+                <span>Drop photos here or click to select</span>
             </div>
-            <div id="size-control" hidden>
-                <label for="size-select">Size</label>
-                <select id="size-select">
-                    <option value="1000">Small (1K)</option>
-                    <option value="2000" selected>Medium (2K)</option>
-                    <option value="4000">Large (4K)</option>
-                    <option value="custom">Custom</option>
-                </select>
-                <input type="number" id="size-custom" min="100" max="10000" value="3000" placeholder="px" hidden>
-            </div>
-            <button id="save-btn" class="btn" hidden>Save</button>
         </div>
-        <div id="canvas-container">
-            <div id="canvas"></div>
+        <div id="workspace" hidden>
+            <div id="toolbar">
+                <label id="upload-btn" class="btn">
+                    <input type="file" id="file-input-2" accept="image/*" multiple hidden>
+                    + Add Photos
+                </label>
+                <button id="clear-btn" class="btn">Clear</button>
+                <div id="gap-control">
+                    <label for="gap-slider">Spacing</label>
+                    <input type="range" id="gap-slider" min="0" max="20" value="4">
+                </div>
+                <div id="size-control">
+                    <label for="size-select">Size</label>
+                    <select id="size-select">
+                        <option value="1000">Small (1K)</option>
+                        <option value="2000" selected>Medium (2K)</option>
+                        <option value="4000">Large (4K)</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                    <input type="number" id="size-custom" min="100" max="10000" value="3000" placeholder="px" hidden>
+                </div>
+                <button id="save-btn" class="btn">Save</button>
+            </div>
+            <div id="canvas-container">
+                <div id="canvas"></div>
+            </div>
         </div>
     </div>
     <script src="app.js"></script>

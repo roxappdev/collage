@@ -1,16 +1,45 @@
+const dropZone = document.getElementById('drop-zone');
 const fileInput = document.getElementById('file-input');
+const fileInput2 = document.getElementById('file-input-2');
+const workspace = document.getElementById('workspace');
 const canvas = document.getElementById('canvas');
 const saveBtn = document.getElementById('save-btn');
+const clearBtn = document.getElementById('clear-btn');
 const gapSlider = document.getElementById('gap-slider');
-const gapControl = document.getElementById('gap-control');
-const sizeControl = document.getElementById('size-control');
 const sizeSelect = document.getElementById('size-select');
 const sizeCustom = document.getElementById('size-custom');
 
 let currentImages = [];
 let currentGap = 4;
 
+// --- Load images from either input ---
+
+function loadFiles(files) {
+    const fileList = Array.from(files);
+    if (fileList.length === 0) return;
+
+    const readers = fileList.map(file => new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.src = URL.createObjectURL(file);
+    }));
+
+    Promise.all(readers).then(images => {
+        currentImages = images;
+        renderCollage(images);
+        // Switch to workspace view
+        dropZone.hidden = true;
+        workspace.hidden = false;
+    });
+}
+
 fileInput.addEventListener('change', (e) => {
+    loadFiles(e.target.files);
+    e.target.value = '';
+});
+
+fileInput2.addEventListener('change', (e) => {
+    // Add to existing images
     const files = Array.from(e.target.files);
     if (files.length === 0) return;
 
@@ -20,14 +49,36 @@ fileInput.addEventListener('change', (e) => {
         img.src = URL.createObjectURL(file);
     }));
 
-    Promise.all(readers).then(images => {
-        currentImages = images;
-        renderCollage(images);
-        saveBtn.hidden = false;
-        gapControl.hidden = false;
-        sizeControl.hidden = false;
+    Promise.all(readers).then(newImages => {
+        currentImages = currentImages.concat(newImages);
+        renderCollage(currentImages);
     });
+
+    e.target.value = '';
 });
+
+// --- Drag & Drop on drop zone ---
+
+dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('drag-over');
+});
+
+dropZone.addEventListener('dragleave', () => {
+    dropZone.classList.remove('drag-over');
+});
+
+dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    loadFiles(e.dataTransfer.files);
+});
+
+dropZone.addEventListener('click', () => {
+    fileInput.click();
+});
+
+// --- Grid calculation ---
 
 function calcGrid(n) {
     if (n === 1) return { cols: 1, rows: 1 };
@@ -46,6 +97,8 @@ function calcGrid(n) {
     }
     return { cols: best.cols, rows: best.rows };
 }
+
+// --- Render ---
 
 function renderCollage(images) {
     const n = images.length;
@@ -67,7 +120,6 @@ function renderCollage(images) {
         cell.appendChild(img);
         canvas.appendChild(cell);
 
-        // Drag events
         cell.addEventListener('dragstart', onDragStart);
         cell.addEventListener('dragover', onDragOver);
         cell.addEventListener('dragenter', onDragEnter);
@@ -76,7 +128,6 @@ function renderCollage(images) {
         cell.addEventListener('dragend', onDragEnd);
     }
 
-    // Fill empty cells
     for (let i = n; i < rows * cols; i++) {
         const cell = document.createElement('div');
         cell.className = 'cell';
@@ -85,7 +136,7 @@ function renderCollage(images) {
     }
 }
 
-// --- Drag & Drop ---
+// --- Drag & Drop reorder ---
 
 let dragSrcIndex = null;
 
@@ -118,7 +169,6 @@ function onDrop(e) {
     const targetIndex = parseInt(this.dataset.index);
     if (dragSrcIndex === undefined || dragSrcIndex === targetIndex) return;
 
-    // Swap images in array
     [currentImages[dragSrcIndex], currentImages[targetIndex]] =
         [currentImages[targetIndex], currentImages[dragSrcIndex]];
 
@@ -133,19 +183,16 @@ function onDragEnd() {
 // --- Save ---
 
 function drawImageCover(ctx, img, dx, dy, dw, dh) {
-    // Simulate object-fit: cover
     const imgAspect = img.naturalWidth / img.naturalHeight;
     const boxAspect = dw / dh;
 
     let sx, sy, sw, sh;
     if (imgAspect > boxAspect) {
-        // Image is wider — crop horizontally
         sh = img.naturalHeight;
         sw = img.naturalHeight * boxAspect;
         sx = (img.naturalWidth - sw) / 2;
         sy = 0;
     } else {
-        // Image is taller — crop vertically
         sw = img.naturalWidth;
         sh = img.naturalWidth / boxAspect;
         sx = 0;
@@ -165,7 +212,6 @@ saveBtn.addEventListener('click', () => {
     const padding = 8;
     const radius = 8;
 
-    // Use actual rendered cell size from DOM
     const firstCell = cells[0];
     const cellW = firstCell.offsetWidth;
     const cellH = firstCell.offsetHeight;
@@ -173,7 +219,6 @@ saveBtn.addEventListener('click', () => {
     const collageW = cols * cellW + (cols - 1) * gap + padding * 2;
     const collageH = rows * cellH + (rows - 1) * gap + padding * 2;
 
-    // Get target size from selector
     let targetSize;
     if (sizeSelect.value === 'custom') {
         targetSize = parseInt(sizeCustom.value) || 2000;
@@ -190,7 +235,6 @@ saveBtn.addEventListener('click', () => {
     offscreen.height = outH;
     const ctx = offscreen.getContext('2d');
 
-    // White background
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, outW, outH);
 
@@ -207,7 +251,6 @@ saveBtn.addEventListener('click', () => {
 
         ctx.save();
 
-        // Rounded rect clip
         ctx.beginPath();
         ctx.moveTo(x + r, y);
         ctx.lineTo(x + w - r, y);
@@ -225,11 +268,6 @@ saveBtn.addEventListener('click', () => {
 
         ctx.restore();
     });
-    
-    // Size selector
-    sizeSelect.addEventListener('change', () => {
-        sizeCustom.hidden = sizeSelect.value !== 'custom';
-    });
 
     const link = document.createElement('a');
     link.download = 'collage.png';
@@ -237,8 +275,20 @@ saveBtn.addEventListener('click', () => {
     link.click();
 });
 
-// Gap slider
+// --- Controls ---
+
 gapSlider.addEventListener('input', () => {
     currentGap = parseInt(gapSlider.value);
     canvas.style.gap = `${currentGap}px`;
+});
+
+sizeSelect.addEventListener('change', () => {
+    sizeCustom.hidden = sizeSelect.value !== 'custom';
+});
+// Clear
+clearBtn.addEventListener('click', () => {
+    currentImages = [];
+    canvas.innerHTML = '';
+    workspace.hidden = true;
+    dropZone.hidden = false;
 });
