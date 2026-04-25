@@ -111,6 +111,7 @@ body {
 }
 
 #gap-control,
+#radius-control,
 #size-control {
     display: flex;
     align-items: center;
@@ -120,6 +121,7 @@ body {
 }
 
 #gap-control label,
+#radius-control label,
 #size-control label {
     white-space: nowrap;
 }
@@ -149,6 +151,42 @@ body {
 
 #gap-slider::-webkit-slider-thumb:hover {
     transform: scale(1.15);
+}
+
+#radius-slider {
+    width: 80px;
+    height: 4px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: #d2d2d7;
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+}
+
+#radius-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #007aff;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.15s;
+}
+
+#radius-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+}
+
+#radius-slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #007aff;
+    border: none;
+    cursor: pointer;
 }
 
 #gap-slider::-moz-range-thumb {
@@ -203,6 +241,7 @@ body {
     padding: 8px;
     box-shadow: 0 2px 12px rgba(0,0,0,0.06);
     align-content: start;
+    justify-content: center;
 }
 
 .cell {
@@ -210,6 +249,11 @@ body {
     border-radius: 8px;
     background: #f0f0f0;
     aspect-ratio: 1;
+    cursor: grab;
+}
+
+.cell:active {
+    cursor: grabbing;
 }
 
 .cell img {

@@ -6,11 +6,13 @@ const canvas = document.getElementById('canvas');
 const saveBtn = document.getElementById('save-btn');
 const clearBtn = document.getElementById('clear-btn');
 const gapSlider = document.getElementById('gap-slider');
+const radiusSlider = document.getElementById('radius-slider');
 const sizeSelect = document.getElementById('size-select');
 const sizeCustom = document.getElementById('size-custom');
 
 let currentImages = [];
 let currentGap = 4;
+let currentRadius = 8;
 
 // --- Load images from either input ---
 
@@ -117,6 +119,7 @@ function renderCollage(images) {
 
         const img = images[i].cloneNode();
         img.draggable = false;
+        cell.style.borderRadius = `${currentRadius}px`;
         cell.appendChild(img);
         canvas.appendChild(cell);
 
@@ -128,12 +131,6 @@ function renderCollage(images) {
         cell.addEventListener('dragend', onDragEnd);
     }
 
-    for (let i = n; i < rows * cols; i++) {
-        const cell = document.createElement('div');
-        cell.className = 'cell';
-        cell.style.background = '#f0f0f0';
-        canvas.appendChild(cell);
-    }
 }
 
 // --- Drag & Drop reorder ---
@@ -210,7 +207,7 @@ saveBtn.addEventListener('click', () => {
     const { cols, rows } = calcGrid(images.length);
     const gap = currentGap;
     const padding = 8;
-    const radius = 8;
+    const radius = currentRadius;
 
     const firstCell = cells[0];
     const cellW = firstCell.offsetWidth;
@@ -273,6 +270,14 @@ saveBtn.addEventListener('click', () => {
     link.download = 'collage.png';
     link.href = offscreen.toDataURL('image/png');
     link.click();
+});
+
+// Radius slider
+radiusSlider.addEventListener('input', () => {
+    currentRadius = parseInt(radiusSlider.value);
+    document.querySelectorAll('.cell').forEach(c => {
+        c.style.borderRadius = `${currentRadius}px`;
+    });
 });
 
 // --- Controls ---
