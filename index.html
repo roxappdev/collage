@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collage Maker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <div id="toolbar">
+            <label id="upload-btn" class="btn">
+                <input type="file" id="file-input" accept="image/*" multiple hidden>
+                + Add Photos
+            </label>
+            <div id="gap-control" hidden>
+                <label for="gap-slider">Spacing</label>
+                <input type="range" id="gap-slider" min="0" max="20" value="4">
+            </div>
+            <div id="size-control" hidden>
+                <label for="size-select">Size</label>
+                <select id="size-select">
+                    <option value="1000">Small (1K)</option>
+                    <option value="2000" selected>Medium (2K)</option>
+                    <option value="4000">Large (4K)</option>
+                    <option value="custom">Custom</option>
+                </select>
+                <input type="number" id="size-custom" min="100" max="10000" value="3000" placeholder="px" hidden>
+            </div>
+            <button id="save-btn" class="btn" hidden>Save</button>
+        </div>
+        <div id="canvas-container">
+            <div id="canvas"></div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
